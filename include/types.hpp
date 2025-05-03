@@ -25,12 +25,14 @@ struct scan_result {
 
     template<size_t index>
     auto value() const{
-        return std::get<index>( values_ );
+        using TupleT = std::tuple_element_t<index, decltype(values_)>;
+        return static_cast<TupleT>(std::get<index>( values_ ));
     }
 
     template< typename T, size_t index>
     void value( T val_ ){
-        T& val = std::get<index>( values_ );
+        using NonCV_T = std::remove_cv_t<T>;
+        NonCV_T &val = const_cast<NonCV_T&>( std::get<index>( values_ ) );
         val = std::move( val_ );
     }
 

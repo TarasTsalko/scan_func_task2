@@ -14,17 +14,19 @@
 
 namespace stdx::details {
 
+#define SCAN_UNUSED(x) (void)(x)
+
 template<typename T>
-concept IsInt_TType = (std::same_as<T, int8_t>  || std::same_as<T, int16_t> || 
-                     std::same_as<T, int32_t> || std::same_as<T, int64_t>);
+concept IsInt_TType = (std::same_as<T, int8_t> || std::same_as<T, int16_t> || 
+                       std::same_as<T, int32_t> || std::same_as<T, int64_t>);
 
 template<typename T>
 concept IsUInt_TType = (std::same_as<T, uint8_t>  || std::same_as<T, uint16_t> || 
                         std::same_as<T, uint32_t> || std::same_as<T, uint64_t>);
 
 template <typename T>
-concept IsStringType = (std::same_as<std::remove_reference_t<std::remove_cv_t<T>>, std::string> || 
-                        std::same_as<std::remove_reference_t<std::remove_cv_t<T>>, std::string_view>);
+concept IsStringType = (std::same_as<T, std::string> || 
+                        std::same_as<T, std::string_view>);
 
 
 // здесь ваш код
@@ -45,7 +47,7 @@ constexpr std::expected<T, scan_error> parse_value( std::string_view input,  std
     const char* begin = input.data();
     char* end;
     T retval = {};
-    if constexpr  (  std::same_as<T, double> )
+    if constexpr (  std::same_as<T, double> )
         retval = std::strtod(begin, &end);
     else if constexpr ( std::same_as<T, float> )
         retval  = std::strtof(begin, &end);
@@ -83,8 +85,9 @@ constexpr std::expected<T, scan_error> parse_value( std::string_view input, std:
 // Функция для парсинга значения с учетом спецификатора формата
 template <typename T>
 std::expected<T, scan_error> parse_value_with_format(std::string_view input, std::string_view fmt) {
-    
-    return parse_value<T>( input, fmt ); 
+
+    using NonCV_T = std::remove_cv_t<T>;
+    return parse_value<NonCV_T>( input, fmt ); 
 }
 
 // Функция для проверки корректности входных данных и выделения из обеих строк интересующих данных для парсинга
@@ -120,7 +123,8 @@ parse_sources(std::string_view input, std::string_view format) {
         }
 
         // Сохраняем спецификатор формата (то, что между {})
-        format_parts.push_back(format.substr(open + 1, close - open - 1 ));
+        std::string tmp = std::string( format );
+        format_parts.push_back(tmp.substr(open + 1, close - open - 1 ));
         start = close + 1;
     }
 
@@ -175,6 +179,9 @@ struct ParseHelper<0, Ts...>
     std::expected<bool, scan_error> operator()( const std::vector<std::string_view>& input_parts, const std::vector<std::string_view>& format_parts,
                                                 scan_result<Ts...>& results )
     {
+        SCAN_UNUSED( input_parts );
+        SCAN_UNUSED( format_parts );
+        SCAN_UNUSED( results );
         return true;
     }
 };
