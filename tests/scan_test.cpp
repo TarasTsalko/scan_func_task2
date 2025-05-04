@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <gtest/gtest.h>
 #include <print>
 #include <string>
@@ -138,4 +139,16 @@ TEST(ScanTest, IncorrectTypeSequenceTest) {
     auto result = stdx::scan<std::string, uint8_t>("number", "{}");
     ASSERT_FALSE(result.has_value());
     ASSERT_EQ( result.error().get_string(), std::string( "Different placeholders count and input types" ) );
+}
+
+TEST(ScanTest, FormatErrorUnsupportedSpecifierTest) {
+    auto result = stdx::scan<std::string>("number", "{%g}");
+    ASSERT_FALSE(result.has_value());
+    ASSERT_EQ( result.error().get_string(), std::string( "Unexpected format" ) );
+}
+
+TEST(ScanTest, OverflowTest) {
+    auto result = stdx::scan<int8_t>("number 200000000000000000000000000000", "number {%d}");
+    ASSERT_FALSE(result.has_value());
+    ASSERT_EQ( result.error().get_string(), std::string( "Overflow" ) );
 }

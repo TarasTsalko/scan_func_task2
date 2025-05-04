@@ -52,9 +52,9 @@ constexpr std::expected<T, scan_error> parse_value( std::string_view input, std:
         retval  = std::strtof(begin, &end);
 
     if (begin == end)
-        return std::unexpected( scan_error{ "invalid input data to conertion" } );
+        return std::unexpected( scan_error{ "Invalid input data to conertion" } );
     else if (std::isinf(retval)) 
-        return std::unexpected( scan_error{ "overflow" } );
+        return std::unexpected( scan_error{ "Overflow" } );
     return retval;
 }
 
@@ -73,10 +73,10 @@ constexpr std::expected<T, scan_error> parse_value( std::string_view input, std:
         retval = static_cast<T>( std::strtoul(begin, &end, 10) );
     
     if (begin == end)
-        return std::unexpected( scan_error{ "invalid input data to conertion" } );
+        return std::unexpected( scan_error{ "Invalid input data to conertion" } );
     const bool range_error = errno == ERANGE;
     if ( range_error )
-        return std::unexpected( scan_error{ "overflow" } );
+        return std::unexpected( scan_error{ "Overflow" } );
     return retval;
 }
 
