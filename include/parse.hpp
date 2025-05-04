@@ -46,9 +46,9 @@ constexpr std::expected<T, scan_error> parse_value( std::string_view input, std:
     const char* begin = input.data();
     char* end;
     T retval = {};
-    if constexpr (  std::same_as<T, double> )
+    if ( std::same_as<T, double> )
         retval = std::strtod(begin, &end);
-    else if constexpr ( std::same_as<T, float> )
+    else if ( std::same_as<T, float> )
         retval  = std::strtof(begin, &end);
 
     if (begin == end)
@@ -67,9 +67,9 @@ constexpr std::expected<T, scan_error> parse_value( std::string_view input, std:
     const char* begin = input.data();
     char* end;
     T retval = {};
-    if constexpr ( IsInt_TType<T> )
+    if ( IsInt_TType<T> )
         retval = static_cast<T>( std::strtol(begin, &end, 10) );
-    else if constexpr ( IsUInt_TType<T> )
+    else if ( IsUInt_TType<T> )
         retval = static_cast<T>( std::strtoul(begin, &end, 10) );
     
     if (begin == end)
