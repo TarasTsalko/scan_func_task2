@@ -15,7 +15,7 @@ TEST(ScanTest, SingleStringTest) {
 }
 
 TEST(ScanTest, IntFloatInStringTest) {
-    auto result = stdx::scan<int8_t, float>("I want to sum 42 and 3.14 numbers.", "I want to sum {} and {%f} numbers.");
+    auto result = stdx::scan<int8_t, float>("I want to sum 42 and 3.14 numbers.", "I want to sum {} and {} numbers.");
     ASSERT_TRUE(result.has_value()) << result.error();
     const auto values = result.value();
     ASSERT_EQ( values.value<0>(), 42 );
@@ -25,7 +25,7 @@ TEST(ScanTest, IntFloatInStringTest) {
 }
 
 TEST(ScanTest, IntNegativeFloatInStringTest) {
-    auto result = stdx::scan<int8_t, float>("I want to sum 42 and -3.14 numbers.", "I want to sum {} and {%f} numbers.");
+    auto result = stdx::scan<int8_t, float>("I want to sum 42 and -3.14 numbers.", "I want to sum {} and {} numbers.");
     ASSERT_TRUE(result.has_value()) << result.error();
     const auto values = result.value();
     ASSERT_EQ( values.value<0>(), 42 );
@@ -35,7 +35,15 @@ TEST(ScanTest, IntNegativeFloatInStringTest) {
 }
 
 TEST(ScanTest, IntDoubleInStringTest) {
-    auto result = stdx::scan<int8_t, double>("I want to sum 42 and 3.14 numbers.", "I want to sum {} and {%f} numbers.");
+    auto result = stdx::scan<int8_t, double>("I want to sum 42 and 3.14 numbers.", "I want to sum {} and {} numbers.");
+    ASSERT_TRUE(result.has_value()) << result.error();
+    const auto values = result.value();
+    ASSERT_EQ( values.value<0>(), 42 );
+    ASSERT_FLOAT_EQ( values.value<1>(), 3.14 );
+}
+
+TEST(ScanTest, IntDoubleInStringWithSpecifierTest) {
+    auto result = stdx::scan<int8_t, double>("I want to sum 42 and 3.14 numbers.", "I want to sum {%d} and {%f} numbers.");
     ASSERT_TRUE(result.has_value()) << result.error();
     const auto values = result.value();
     ASSERT_EQ( values.value<0>(), 42 );
@@ -43,7 +51,7 @@ TEST(ScanTest, IntDoubleInStringTest) {
 }
 
 TEST(ScanTest, IntNegativeDoubleInStringTest) {
-    auto result = stdx::scan<int8_t, double>("I want to sum 42 and -3.14 numbers.", "I want to sum {} and {%f} numbers.");
+    auto result = stdx::scan<int8_t, double>("I want to sum 42 and -3.14 numbers.", "I want to sum {} and {} numbers.");
     ASSERT_TRUE(result.has_value()) << result.error();
     const auto values = result.value();
     ASSERT_EQ( values.value<0>(), 42 );

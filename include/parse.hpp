@@ -12,6 +12,8 @@
 #include <vector>
 #include "types.hpp"
 
+#include <iostream>
+
 namespace stdx::details {
 
 #define SCAN_UNUSED(x) (void)(x)
@@ -21,12 +23,12 @@ concept IsInt_TType = (std::same_as<T, int8_t> || std::same_as<T, int16_t> ||
                        std::same_as<T, int32_t> || std::same_as<T, int64_t>);
 
 template<typename T>
-concept IsUInt_TType = (std::same_as<T, uint8_t>  || std::same_as<T, uint16_t> || 
-                        std::same_as<T, uint32_t> || std::same_as<T, uint64_t>);
+concept IsUInt_TType =  (std::same_as<T, uint8_t>  || std::same_as<T, uint16_t> || 
+                         std::same_as<T, uint32_t> || std::same_as<T, uint64_t>);
 
 template <typename T>
-concept IsStringType = (std::same_as<T, std::string> || 
-                        std::same_as<T, std::string_view>);
+concept IsStringType =  std::same_as<T, std::string> || 
+                        std::same_as<T, std::string_view>;
 
 
 // здесь ваш код
@@ -40,7 +42,8 @@ constexpr std::expected<T, scan_error> parse_value( std::string_view input, std:
 
 template <typename T>
 requires std::floating_point<T>
-constexpr std::expected<T, scan_error> parse_value( std::string_view input,  std::string_view fmt ){ 
+constexpr std::expected<T, scan_error> parse_value( std::string_view input, std::string_view fmt ){ 
+    static_assert(std::floating_point<T>, "It is not a floating point type" );
     if ( !fmt.empty() && fmt != "%f" )
          return std::unexpected( scan_error{ "invalid format" } );
 
@@ -62,8 +65,7 @@ constexpr std::expected<T, scan_error> parse_value( std::string_view input,  std
 template <typename T>
 requires IsInt_TType<T> || IsUInt_TType<T>
 constexpr std::expected<T, scan_error> parse_value( std::string_view input, std::string_view fmt ){ 
-    
-    if ( !fmt.empty() && (fmt != "%d" || fmt !="%u" ) )
+    if ( !fmt.empty() && (fmt != "%d" && fmt !="%u" ) )
          return std::unexpected( scan_error{ "invalid format" } );
 
     const char* begin = input.data();
@@ -123,8 +125,7 @@ parse_sources(std::string_view input, std::string_view format) {
         }
 
         // Сохраняем спецификатор формата (то, что между {})
-        std::string tmp = std::string( format );
-        format_parts.push_back(tmp.substr(open + 1, close - open - 1 ));
+        format_parts.push_back(format.substr(open + 1, close - open - 1 ));
         start = close + 1;
     }
 
