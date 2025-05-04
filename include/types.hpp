@@ -12,7 +12,7 @@ struct scan_error {
     std::string message;
 };
 
-std::ostream& operator<<(std::ostream& os, const scan_error &rhv )
+inline std::ostream& operator<<(std::ostream& os, const scan_error &rhv )
 {
     os << rhv.message;
     return os;
@@ -31,8 +31,9 @@ struct scan_result {
 
     template< typename T, size_t index>
     void value( T val_ ){
-        using NonCV_T = std::remove_cv_t<T>;
-        NonCV_T &val = const_cast<NonCV_T&>( std::get<index>( values_ ) );
+        using TupleElementType = std::tuple_element_t<index, decltype(values_)>;
+        static_assert( std::same_as<TupleElementType, T>, "Incorrect type!" );
+        TupleElementType &val = const_cast<TupleElementType&>( std::get<index>( values_ ) );
         val = std::move( val_ );
     }
 
