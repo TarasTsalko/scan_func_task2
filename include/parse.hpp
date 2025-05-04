@@ -36,16 +36,15 @@ template <typename T>
 requires IsStringType<T>
 constexpr std::expected<T, scan_error> parse_value( std::string_view input, std::string_view fmt ) {
     if ( !fmt.empty() && fmt != "%s" )
-          return std::unexpected( scan_error{ "unexpected format" } );  
+          return std::unexpected( scan_error{ "Unexpected format" } );  
     return std::string( input );
 }
 
 template <typename T>
 requires std::floating_point<T>
 constexpr std::expected<T, scan_error> parse_value( std::string_view input, std::string_view fmt ){ 
-    static_assert(std::floating_point<T>, "It is not a floating point type" );
     if ( !fmt.empty() && fmt != "%f" )
-         return std::unexpected( scan_error{ "invalid format" } );
+         return std::unexpected( scan_error{ "Unexpected format" } );
 
     const char* begin = input.data();
     char* end;
@@ -66,7 +65,7 @@ template <typename T>
 requires IsInt_TType<T> || IsUInt_TType<T>
 constexpr std::expected<T, scan_error> parse_value( std::string_view input, std::string_view fmt ){ 
     if ( !fmt.empty() && (fmt != "%d" && fmt !="%u" ) )
-         return std::unexpected( scan_error{ "invalid format" } );
+         return std::unexpected( scan_error{ "Unexpected format" } );
 
     const char* begin = input.data();
     char* end;
@@ -162,6 +161,9 @@ struct ParseHelper
                                                 scan_result<Ts...>& results )
     {
         const size_t index = sizeof...(Ts) - I;
+        if ( input_parts.size() <= index )
+            return std::unexpected( scan_error{ "Different placeholders count and input types" });
+
         using T = details::type_at<index, Ts...>::type;
         const auto res = stdx::details::parse_value_with_format<T>( input_parts[ index ], format_parts[ index ] );
         if ( res.has_value() ){

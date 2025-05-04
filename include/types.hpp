@@ -2,7 +2,10 @@
 
 #include <cstddef>
 #include <string>
+#include <format>
 #include <tuple>
+
+
 
 namespace stdx::details {
 
@@ -10,7 +13,11 @@ namespace stdx::details {
 
 struct scan_error {
     std::string message;
+    const std::string& get_string() const {
+        return message;
+    }
 };
+
 
 inline std::ostream& operator<<(std::ostream& os, const scan_error &rhv )
 {
@@ -41,3 +48,13 @@ struct scan_result {
 };
 
 } // namespace stdx::details
+
+namespace std {
+    template <>
+    struct formatter<stdx::details::scan_error> : formatter<std::string> {
+        auto format(const stdx::details::scan_error& value, format_context& ctx) {
+            return formatter<string>::format(value.get_string(), ctx);
+        }
+    };
+}
+
